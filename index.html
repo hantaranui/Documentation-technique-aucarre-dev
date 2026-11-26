@@ -37,7 +37,7 @@
 
 /*
  * theme.css : les couleurs, et SEULEMENT les couleurs.
- * Treize jetons (docs/ux/regles-visuelles.md, partie 2). C'est le seul fichier
+ * Quatorze jetons (docs/ux/regles-visuelles.md, partie 2). C'est le seul fichier
  * où une couleur est écrite en toutes lettres : les autres fichiers utilisent var(--nom).
  * Le mode clair est la valeur de base ; le mode sombre s'active quand theme.js
  * pose l'attribut data-theme="dark" sur la page (tâche 1.20).
@@ -58,23 +58,27 @@
   --logo-zone-background: #FFFFFF;   /* zone autour du logo (blanc dans les deux modes) */
   --accent: #F77245;                 /* accent, décoration seulement (orange) */
   --menu-selected-background: #F3F6F6; /* fond de l'élément sélectionné du menu (gris très clair) */
+  --on-accent: #090C0B;              /* texte du bouton « Imprimer / PDF », posé sur l'accent (noir) */
 }
 
-/* Mode sombre */
-:root[data-theme="dark"] {
-  --page-background: #090C0B;        /* noir */
-  --card-background: #090C0B;        /* noir : la fiche se distingue par sa bordure */
-  --text-primary: #F3F6F6;           /* gris très clair */
-  --text-secondary: #F3F6F6;         /* gris très clair (le gris-vert n'est pas lisible sur noir) */
-  --border: #59736E;                 /* gris-vert */
-  --outline-strong: #F3F6F6;         /* gris très clair */
-  --code-background: #090C0B;        /* noir, comme la fiche : sa bordure le distingue ; le bandeau gris-vert reste le seul aplat (décidé le 25/11/2026) */
-  --code-accent: #44F8CC;            /* turquoise (identique au mode clair) */
-  --card-header-background: #59736E; /* gris-vert (identique au mode clair) */
-  --card-header-text: #F3F6F6;       /* gris très clair (identique au mode clair) */
-  --logo-zone-background: #FFFFFF;   /* blanc : le logo n'a pas de version blanche */
-  --accent: #F77245;                 /* orange */
-  --menu-selected-background: #59736E; /* gris-vert (à valider à l'écran, tâche 1.36) */
+/* Mode sombre : à l'écran seulement. À l'impression, les valeurs claires ci-dessus s'appliquent. */
+@media screen {
+  :root[data-theme="dark"] {
+    --page-background: #090C0B;        /* noir */
+    --card-background: #090C0B;        /* noir : la fiche se distingue par sa bordure */
+    --text-primary: #F3F6F6;           /* gris très clair */
+    --text-secondary: #F3F6F6;         /* gris très clair (le gris-vert n'est pas lisible sur noir) */
+    --border: #59736E;                 /* gris-vert */
+    --outline-strong: #F3F6F6;         /* gris très clair */
+    --code-background: #090C0B;        /* noir, comme la fiche : sa bordure le distingue ; le bandeau gris-vert reste le seul aplat (décidé le 25/11/2026) */
+    --code-accent: #44F8CC;            /* turquoise (identique au mode clair) */
+    --card-header-background: #59736E; /* gris-vert (identique au mode clair) */
+    --card-header-text: #F3F6F6;       /* gris très clair (identique au mode clair) */
+    --logo-zone-background: #FFFFFF;   /* blanc : le logo n'a pas de version blanche */
+    --accent: #F77245;                 /* orange */
+    --menu-selected-background: #59736E; /* gris-vert (à valider à l'écran, tâche 1.36) */
+    --on-accent: #090C0B;              /* noir (identique au mode clair) */
+  }
 }
 
 /*
@@ -155,6 +159,11 @@
   --bar-space-above: 0.75rem;       /* 12 px entre le sous-titre et la bande (ou entre le sous-titre et la liste déroulante : la fiche n'en donne pas) */
   --bar-space-below: 1rem;          /* 16 px sous le trait */
   --sticky-offset: 4.5rem;          /* 72 px : marge de défilement (bande de 56 px + 16 px) ; 4 px quand la bande n'est pas collée (voir le seuil de 800 px) */
+
+  /* Bouton « Imprimer / PDF » (docs/ux/impression.md, partie 3) */
+  --button-gap: 0.75rem;            /* 12 px entre le champ et le bouton */
+  --button-padding-y: 0.5rem;       /* 8 px en haut et en bas */
+  --button-padding-x: 1rem;         /* 16 px de chaque côté */
 
   /* Ligne de contexte et bouton « Effacer la recherche » */
   --context-gap: 0.75rem;           /* 12 px : sous la ligne, et entre le texte et le bouton */
@@ -470,12 +479,15 @@ main::after {
   font-weight: var(--weight-regular);
 }
 
-/* Bande de recherche COLLÉE en haut du contenu (56 px : 4 + 36 + 15 + trait d'1 px), au-dessus des
+/* Bande de recherche COLLÉE en haut du contenu (environ 56 px : 4 + 36 + 15 + trait d'1 px), au-dessus des
    fiches, sur un fond opaque. Le titre, les losanges et la ligne de contexte défilent avec les fiches. */
 .search-bar {
   position: sticky;
   top: 0;
   z-index: 1;
+  display: flex; /* le champ, puis le bouton à sa droite */
+  align-items: center;
+  gap: var(--button-gap);
   margin: var(--bar-space-above) 0 var(--bar-space-below);
   padding: var(--bar-air-top) 0 var(--bar-air-bottom);
   background: var(--page-background);
@@ -484,6 +496,8 @@ main::after {
 
 .search-input {
   display: block;
+  flex: 1 1 auto; /* il prend la place qui reste à côté du bouton */
+  min-width: 0;
   box-sizing: border-box;
   width: 100%;
   max-width: var(--search-max-width);
@@ -512,6 +526,22 @@ main::after {
   -webkit-appearance: none;
   appearance: none;
   display: none;
+}
+
+/* Bouton « Imprimer / PDF » : son texte ne passe pas à la ligne. Fond et texte définis ensemble. */
+.print-button {
+  flex: none;
+  margin: 0;
+  padding: var(--button-padding-y) var(--button-padding-x);
+  background: var(--accent);
+  color: var(--on-accent);
+  border: var(--border-width) solid var(--outline-strong);
+  border-radius: var(--corner-radius);
+  font-family: inherit;
+  font-size: var(--size-text);
+  font-weight: var(--weight-bold);
+  line-height: var(--line-compact);
+  white-space: nowrap;
 }
 
 /* La marge de défilement évite que la bande collée cache la zone de contenu ou le bouton « Effacer »
@@ -797,8 +827,11 @@ body:has(#status-zone:not(:empty), #alert-zone:not(:empty)) .page-subtitle {
     display: none;
   }
 
+  /* Le bouton passe sous le champ, sur toute la largeur. */
   .search-bar {
     position: static;
+    flex-direction: column;
+    align-items: stretch;
   }
 
   .search-input {
@@ -812,6 +845,101 @@ body:has(#status-zone:not(:empty), #alert-zone:not(:empty)) .page-subtitle {
     --page-margin: 1rem;
     --logo-width: 6.875rem;
   }
+}
+
+/*
+ * print.css : la page imprimée (docs/ux/impression.md). Collé en DERNIER par build.js : à poids égal,
+ * ses règles passent devant celles de layout.css.
+ * Aucune couleur écrite ici : seulement des var(--...). Les valeurs claires de theme.css s'appliquent
+ * à l'impression, même quand Grist est en thème sombre. Aucune taille de texte n'est changée.
+ */
+
+/* Le papier : écrit en toutes lettres, car var() n'est pas lu sûrement ici. */
+@page {
+  size: A4 landscape;
+  margin: 9mm;
+}
+
+@media print {
+  /* ---------- Une seule colonne, sur toute la largeur ---------- */
+  body {
+    display: block;
+    padding: 0;
+    background: var(--page-background);
+    color: var(--text-primary);
+  }
+
+  .sidebar {
+    padding-right: 0;
+    border-right: 0;
+  }
+
+  /* Le logo reste en haut, aligné à gauche. */
+  .sidebar-logo {
+    margin-left: 0;
+  }
+
+  .page-title {
+    margin-right: 0;
+  }
+
+  /* Le trait sous le haut du contenu appartenait à la bande de recherche : le sous-titre le porte. */
+  .page-subtitle {
+    margin-right: 0;
+    margin-bottom: var(--bar-space-below);
+    padding-bottom: var(--bar-space-below);
+    border-bottom: var(--border-width) solid var(--border);
+  }
+
+  /* ---------- Ce qui est retiré ---------- */
+  /* « .message .clear-button » reprend les deux classes de layout.css : même poids, et écrit après. */
+  .skip-link,
+  .menu,
+  .category-picker,
+  .search-bar,
+  .context-zone .clear-button,
+  .message .clear-button,
+  .announce-zone,
+  main::before,
+  main::after,
+  .group-title::before {
+    display: none;
+  }
+
+  /* ---------- Les fiches : fond de la page, titre avec un trait dessous ---------- */
+  .card {
+    background: var(--card-background);
+    break-inside: avoid; /* jamais coupée, sauf si elle est plus haute qu'une page */
+  }
+
+  .card-title {
+    background: var(--page-background);
+    color: var(--text-primary);
+    border-bottom: var(--border-width) solid var(--border);
+    break-inside: avoid;
+    break-after: avoid;
+  }
+
+  /* Titre seul : la marge intérieure du bas de la fiche revient, et le trait reste droit. */
+  .card-title:only-child {
+    margin-bottom: 0;
+    border-radius: 0;
+  }
+
+  /* ---------- Les coupures entre les pages ---------- */
+  .group-title {
+    break-after: avoid; /* jamais seul en bas d'une page */
+  }
+
+  .block {
+    break-inside: avoid;
+  }
+
+  .block-label {
+    break-after: avoid; /* l'étiquette reste avec sa valeur */
+  }
+
+  /* Le bloc de code garde sa bordure et son filet (layout.css) : rien à changer. */
 }
 
 </style>
@@ -844,9 +972,10 @@ body:has(#status-zone:not(:empty), #alert-zone:not(:empty)) .page-subtitle {
       <select class="menu-select" id="menu-select"></select>
     </div>
 
-    <!-- Recherche : le champ a un nom accessible écrit en attribut. -->
+    <!-- Recherche : le champ a un nom accessible écrit en attribut. Puis le bouton d'impression. -->
     <div class="search-bar" role="search">
       <input class="search-input" id="search-input" type="search" aria-label="Rechercher une formule, une table" placeholder="Rechercher une formule, une table…" autocomplete="off">
+      <button class="print-button" type="button">Imprimer / PDF</button>
     </div>
 
     <!-- Zone de contenu : entoure la ligne de contexte, les deux zones de message et les fiches.
@@ -1704,6 +1833,7 @@ const RENDER_CLASSES = {
   menuSelect: 'menu-select',
   searchBar: 'search-bar',
   searchInput: 'search-input',
+  printButton: 'print-button',
   contextZone: 'context-zone',
   announceZone: 'announce-zone',
   menuItem: 'menu-item',
@@ -1753,6 +1883,7 @@ const RENDER_MENU_TEXTS = {
   searchPlaceholder: 'Rechercher une formule, une table…',   // HTML
   searchLabel: 'Rechercher une formule, une table',          // HTML
   categoryLabel: 'Catégorie :',                              // HTML
+  printButton: 'Imprimer / PDF',                             // HTML
   clearSearch: 'Effacer la recherche',                       // bouton
   contextSeparator: ' · ',                                   // entre la portée et le nombre
   cardSingular: 'fiche',                                     // à 0 et à 1
@@ -2054,6 +2185,34 @@ const MAIN_ESCAPE_KEY = 'Escape';
 // La bande est repérée par sa classe (RENDER_CLASSES.searchBar), jamais par une largeur d'écran.
 const MAIN_STICKY_VALUE = 'sticky';
 
+// Le bouton « Imprimer / PDF » est repéré par sa classe. Il n'est pas indispensable à la page.
+const MAIN_PRINT_SELECTOR = '.' + RENDER_CLASSES.printButton;
+
+// Ouvre la fenêtre d'impression de la fenêtre reçue. Si c'est impossible, il ne se passe rien.
+function printPage(targetWindow) {
+  try {
+    if (targetWindow && typeof targetWindow.print === 'function') {
+      targetWindow.print();
+    }
+  } catch (error) {
+    // Rien ne sort d'ici.
+  }
+}
+
+// Branche le clic du bouton d'impression. Bouton absent : rien n'est branché, sans erreur.
+function connectPrintButton(page, targetWindow) {
+  try {
+    const button = page.querySelector(MAIN_PRINT_SELECTOR);
+    if (button) {
+      button.addEventListener(MAIN_EVENTS.click, function () {
+        printPage(targetWindow);
+      });
+    }
+  } catch (error) {
+    // Le reste de la page doit démarrer quand même.
+  }
+}
+
 // Démarre le widget : retrouve les zones, puis se connecte à Grist.
 function startWidget() {
   const zones = {};
@@ -2250,6 +2409,9 @@ function startWidget() {
       // Rien ne sort d'un écouteur.
     }
   });
+
+  // La fenêtre de la page est donnée ici, une seule fois, au bouton d'impression.
+  connectPrintButton(document, (typeof window !== 'undefined') ? window : undefined);
 
   // L'objet Grist de la page s'il existe ; sinon la connexion répond « problème de lecture ».
   const gristApi = (typeof grist !== 'undefined') ? grist : undefined;
