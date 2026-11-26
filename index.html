@@ -542,6 +542,15 @@ main::after {
   font-weight: var(--weight-bold);
   line-height: var(--line-compact);
   white-space: nowrap;
+  cursor: pointer;
+}
+
+/* Au survol et au focus clavier : fond et texte changent, tout de suite (docs/ux/impression.md,
+   partie 3). Le contour de focus de la règle :focus-visible reste en plus. */
+.print-button:hover,
+.print-button:focus-visible {
+  background: var(--on-accent);
+  color: var(--card-header-text);
 }
 
 /* La marge de défilement évite que la bande collée cache la zone de contenu ou le bouton « Effacer »
